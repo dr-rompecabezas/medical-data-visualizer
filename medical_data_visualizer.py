@@ -37,26 +37,31 @@ def draw_cat_plot():
 # Draw Heat Map
 def draw_heat_map():
     # Clean the data
-    df_heat = df[df['ap_lo'] <= df['ap_hi']]
-    df_heat = df_heat[df_heat['height'] >= df_heat['height'].quantile(0.025)]
-    df_heat = df_heat[df_heat['height'] <= df_heat['height'].quantile(0.975)]
-    df_heat = df_heat[df_heat['weight'] >= df_heat['weight'].quantile(0.025)]
-    df_heat = df_heat[df_heat['weight'] <= df_heat['weight'].quantile(0.975)]
+    df_heat = df.loc[
+        (df['ap_lo'] <= df['ap_hi']) 
+        & (df['height'] >= df['height'].quantile(0.025)) 
+        & (df['height'] <= df['height'].quantile(0.975)) 
+        & (df['weight'] >= df['weight'].quantile(0.025)) 
+        & (df['weight'] <= df['weight'].quantile(0.975))
+        ]
 
 
     # Calculate the correlation matrix
-    corr = None
+    corr = df_heat.corr()
 
     # Generate a mask for the upper triangle
-    mask = None
-
+    mask = np.zeros_like(corr)
+    mask[np.triu_indices_from(mask)] = True
 
 
     # Set up the matplotlib figure
-    fig, ax = plt.subplots()
-
     # Draw the heatmap with 'sns.heatmap()'
 
+    with sns.axes_style("white"):
+
+        fig, ax = plt.subplots(figsize=(14, 10))
+        ax = sns.heatmap(corr, annot = True, mask=mask, fmt='.1f', center=0, linewidths=.5, square=True, cbar_kws={'shrink':0.5})
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
 
 
     # Do not modify the next two lines
